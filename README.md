@@ -9,7 +9,7 @@ DASHBOARD demo link : "http://ec0-meter-gt2c.onrender.com/"
 
 # Smart Energy Meter Dashboard
 
-![Dashboard Screenshot](./screenshot.png)
+![Dashboard Screenshot](UI/UI with js integration.png)
 
 A responsive web-based dashboard for monitoring and visualizing energy consumption in real-time.
 
