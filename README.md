@@ -43,4 +43,4 @@ A responsive web-based dashboard for monitoring and visualizing energy consumpti
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/smart-energy-dashboard.git
+   git clone https://github.com/aswinharikrishnan/smart-energy-dashboard.git
