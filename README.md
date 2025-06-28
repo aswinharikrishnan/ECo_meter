@@ -11,7 +11,7 @@ DASHBOARD demo link : "http://ec0-meter-gt2c.onrender.com/"
 
 <div align="center">
   <img src="./UI/UI_with_js_integration.png" width="800" alt="Dashboard UI">
-   <img src="./UI/UI_with_js_2.png" width="800" alt="Dashboard UI">
+   <img src="./UI/UI_with js_2.png" width="800" alt="Dashboard UI">
   <br>
   <em>Dashboard with JavaScript integration</em>
 </div>
