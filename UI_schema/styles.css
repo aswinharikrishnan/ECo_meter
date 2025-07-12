@@ -1,0 +1,116 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+.dashboard {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+header {
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.2rem;
+    color: #2c3e50;
+}
+
+.date {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 992px) {
+    .main-content {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .right-column {
+        grid-row: span 2;
+    }
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    color: #34495e;
+}
+
+.power-value, .usage-value, .bill-value, .carbon-value {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.power-value span, .usage-value span, .carbon-value span {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    font-weight: normal;
+}
+
+.change {
+    font-size: 1.1rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.positive {
+    color: #27ae60;
+    background-color: rgba(39, 174, 96, 0.1);
+}
+
+.negative {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+.chart-container {
+    height: 300px;
+    margin-bottom: 15px;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#leaderboard-list {
+    list-style: none;
+}
+
+#leaderboard-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+#leaderboard-list li:last-child {
+    border-bottom: none;
+}
