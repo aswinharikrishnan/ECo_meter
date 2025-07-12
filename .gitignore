@@ -1,0 +1,35 @@
+# === Global ===
+.DS_Store
+.env
+*.env
+*.log
+
+# === Python / Django ===
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+*.pyo
+*.pyd
+env/
+venv/
+ENV/
+env.bak/
+*.bak
+*.swp
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# VS Code
+.vscode/
+
+# === React (Vite) Frontend ===
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env.local
+
+# === macOS ===
+*.DS_Store
