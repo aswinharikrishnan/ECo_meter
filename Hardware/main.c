@@ -1,114 +1,114 @@
 #include <LiquidCrystal.h>
-#include <Wire.h>
-#include <RTClib.h>
-#include <SPI.h>
 #include <SD.h>
 
-// LCD pins: RS, E, D4, D5, D6, D7
-LiquidCrystal lcd(14, 12, 13, 15, 2, 4);
+#define VOLTAGE_SENSOR A0
+#define CURRENT_SENSOR A3
+#define SD_CS 5 // Change if your SD module uses a different CS pin
 
-// RTC and SD
-RTC_DS1307 rtc;
-const int chipSelect = 5; // CS pin for SD card
+// LCD Pins: RS, E, D4, D5, D6, D7
+LiquidCrystal lcd(25, 26, 14, 27, 12, 13);
 
-// Sensor and power line pins
-const int voltagePin = 36;
-const int currentPin = 39;
-const int powerLinePin = 33;
-
+// For energy calculation
+float voltage = 0.0;
+float current = 0.0;
 float energyWh = 0.0;
-bool lastPowerStatus = true;
-unsigned long lastDisplayUpdate = 0;
-unsigned long lastSDWrite = 0;
+
+unsigned long lastSampleTime = 0;
+unsigned long lastSaveTime = 0;
+unsigned long sampleInterval = 1000;  // 1 second sampling
+unsigned long saveInterval = 3600000; // 1 hour saving interval (in ms)
+unsigned int hourCounter = 0;
 
 void setup()
 {
-    Serial.begin(115200);
-
+    Serial.begin(9600);
     lcd.begin(16, 2);
-    lcd.print("Initializing...");
+    lcd.print("Smart Energy");
 
-    Wire.begin();
-    rtc.begin();
-    if (!rtc.isrunning())
-    {
-        rtc.adjust(DateTime(F(_DATE), F(TIME_)));
-    }
-
-    if (!SD.begin(chipSelect))
-    {
-        lcd.setCursor(0, 1);
-        lcd.print("SD Fail");
-    }
-
-    pinMode(powerLinePin, INPUT);
-
-    delay(2000);
+    delay(1000);
     lcd.clear();
-}
 
-void logToSD(float voltage, float current, float energy, bool isOutage = false)
-{
-    DateTime now = rtc.now();
-    File logFile = SD.open("energy.csv", FILE_WRITE);
-    if (logFile)
+    if (!SD.begin(SD_CS))
     {
-        logFile.print(now.timestamp());
-        logFile.print(",");
-        logFile.print(voltage, 2);
-        logFile.print(",");
-        logFile.print(current, 2);
-        logFile.print(",");
-        logFile.print(energy, 2);
-        if (isOutage)
-            logFile.print(",POWER LOSS");
-        logFile.println();
-        logFile.close();
+        lcd.print("SD init failed");
+        Serial.println("SD initialization failed!");
+        while (1)
+            ;
     }
-    else
-    {
-        Serial.println("SD Write Error!");
-    }
+
+    lcd.print("SD Ready");
+    delay(1000);
+    lcd.clear();
 }
 
 void loop()
 {
-    unsigned long now = millis();
-    bool currentPower = digitalRead(powerLinePin);
+    unsigned long currentMillis = millis();
 
-    int vRaw = analogRead(voltagePin);
-    int iRaw = analogRead(currentPin);
-
-    float voltage = (vRaw / 4095.0) * 250.0;
-    float current = (iRaw / 4095.0) * 30.0;
-    float power = voltage * current;
-
-    energyWh += (power / 3600.0); // Convert W to Wh per second
-
-    if (now - lastDisplayUpdate >= 1000)
+    // Sample every second
+    if (currentMillis - lastSampleTime >= sampleInterval)
     {
-        lastDisplayUpdate = now;
+        lastSampleTime = currentMillis;
+
+        voltage = readVoltage();
+        current = readCurrent();
+
+        float power = voltage * current; // in watts
+        energyWh += power / 3600.0;      // Energy in watt-hours
+
+        // Display live values
         lcd.setCursor(0, 0);
         lcd.print("V:");
         lcd.print(voltage, 1);
         lcd.print(" I:");
         lcd.print(current, 1);
+
         lcd.setCursor(0, 1);
         lcd.print("E:");
         lcd.print(energyWh, 2);
-        lcd.print("Wh ");
+        lcd.print("Wh");
     }
 
-    if (now - lastSDWrite >= 5000)
+    // Save every hour
+    if (currentMillis - lastSaveTime >= saveInterval)
     {
-        lastSDWrite = now;
-        logToSD(voltage, current, energyWh);
+        lastSaveTime = currentMillis;
+        hourCounter++;
+        logToSD(hourCounter, energyWh);
     }
+}
 
-    if (!currentPower && lastPowerStatus)
+float readVoltage()
+{
+    int raw = analogRead(VOLTAGE_SENSOR);
+    float voltage = (raw / 4095.0) * 3.3;          // Assuming 3.3V ADC ref
+    float actualVoltage = voltage * (250.0 / 3.3); // Adjust with scaling factor
+    return actualVoltage;
+}
+
+float readCurrent()
+{
+    int raw = analogRead(CURRENT_SENSOR);
+    float voltage = (raw / 4095.0) * 3.3; // Assuming 3.3V ADC ref
+    float current = voltage * 10.0;       // Adjust based on CT calibration
+    return current;
+}
+
+void logToSD(int hour, float energyWh)
+{
+    File file = SD.open("/energy_log.csv", FILE_APPEND);
+    if (file)
     {
-        logToSD(voltage, current, energyWh, true);
+        file.print("Hour ");
+        file.print(hour);
+        file.print(",");
+        file.print(energyWh, 2);
+        file.println(" Wh");
+        file.close();
+        Serial.println("Logged to SD");
     }
-
-    lastPowerStatus = currentPower;
+    else
+    {
+        Serial.println("Error writing to SD");
+    }
 }
